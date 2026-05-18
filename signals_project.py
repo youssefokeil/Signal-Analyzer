@@ -30,7 +30,7 @@ sine_10hz=signal_10Hz.sine()
 signal_final= sine_20hz+sine_10hz+sine_1hz
 
 #import MP3 file
-files_path="./900fdb95c64d2e5cfa67e96c85b1f069/MP3 files"
+files_path="C:\Users\omayma\Downloads\whatsapp-audio-2026-05-18-at-73426-pm_nlxH28Iy"
 mp3_path=f"./MP3 files/audio_300Hz.mp3"
 signal_mp3, Fs=librosa.load(mp3_path,sr=None, mono=True)
 signal_shifted = signal_mp3 * (2 ** 31 - 1)  
