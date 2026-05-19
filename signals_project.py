@@ -13,6 +13,14 @@ from Signal_Generator_class import Signal
 import librosa
 from pydub import AudioSegment
 
+
+# helper function to save plots 
+def save_and_show():
+    title = plt.gca().get_title()
+    filename = title.lower().replace(' ', '_') + '.png'
+    plt.savefig(f'./figures/{filename}', dpi=150, bbox_inches='tight')
+    plt.show()
+
 #import MP3 file
 mp3_path=f"./mp3_files/names_400hz_noise.mp3"
 signal_mp3, Fs=librosa.load(mp3_path,sr=None, mono=True)
@@ -20,7 +28,7 @@ plt.plot(signal_mp3)
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
 plt.title('Audio Signal Time Domain')
-plt.show()
+save_and_show()
 
 print(Fs)
 
@@ -38,19 +46,20 @@ def real_fourier(signal,sampling_freq):
     
     return rfourier_xf, rfourier_yf, peak_freq
 
+
 # plotting fourier transformed signal
 xf,yf, peak_freq=real_fourier(signal_mp3,Fs)
 plt.plot(xf,yf)
 plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
 plt.title('Audio Signal Frequency Domain')
-plt.show()
+save_and_show()
 
 mask = (xf >= 350) & (xf <= 450)
 plt.plot(xf[mask], yf[mask], label=peak_freq)
 plt.title('Zoomed around 400 Hz')
 plt.legend()
-plt.show()
+save_and_show()
 
 # notch filter
 def notch_filter(signal, notch_freq, sampling_freq, quality_factor=30):
@@ -76,25 +85,25 @@ def plot_notch_response(notch_freq, sampling_freq, quality_factor=30):
     plt.ylabel('Amplitude (dB)')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    save_and_show()
 
 
-plot_notch_response(notch_freq=410, sampling_freq=44100, quality_factor=3)
+plot_notch_response(notch_freq=410, sampling_freq=44100, quality_factor=1)
 
 
-notch_signal=notch_filter(signal_mp3,notch_freq=410,sampling_freq=Fs, quality_factor=3)
+notch_signal=notch_filter(signal_mp3,notch_freq=410,sampling_freq=Fs, quality_factor=1)
 plt.plot(notch_signal, 'b')
 plt.title('Notch Filtered Signal Time Domain')
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
-plt.show()
+save_and_show()
 
 notch_x,notch_y,_=real_fourier(notch_signal,Fs)
 plt.plot(notch_x,notch_y)
 plt.title('Notch Filtered Signal Frequency Domain')
 plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
-plt.show()
+save_and_show()
 
 
 #turn signal to audio
