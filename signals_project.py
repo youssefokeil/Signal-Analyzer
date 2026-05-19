@@ -14,6 +14,8 @@ import librosa
 from pydub import AudioSegment
 
 
+BANDWIDTH = 20
+
 # helper function to save plots 
 def save_and_show():
     title = plt.gca().get_title()
@@ -66,7 +68,8 @@ def ideal_notch_filter(signal, notch_freq, sampling_freq, bandwidth=10, num_harm
     N = len(signal)
     fft_signal = rfft(signal)
     freqs = rfftfreq(N, 1.0/sampling_freq)
-    
+
+    print(f"For Bandwidth={BANDWIDTH}")
     # zero out bins within bandwidth around notch frequency
     for i in range(1, num_harmonics + 1):
         harmonic = notch_freq * i
@@ -93,7 +96,7 @@ def plot_ideal_notch_response(notch_freq, sampling_freq, bandwidth=10):
     plt.axvline(x=notch_freq, color='r', linestyle='--', label=f'Notch at {notch_freq} Hz')
     plt.axvline(x=notch_freq - bandwidth/2, color='g', linestyle='--', label=f'Lower edge: {notch_freq - bandwidth/2} Hz')
     plt.axvline(x=notch_freq + bandwidth/2, color='b', linestyle='--', label=f'Upper edge: {notch_freq + bandwidth/2} Hz')
-    plt.title('Ideal Notch Filter Frequency Response')
+    plt.title(f'Ideal Notch Filter Frequency Response for Bandwidth = {BANDWIDTH}')
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Amplitude (dB)')
     plt.xlim(notch_freq - 100, notch_freq + 100)  # zoom around notch
@@ -102,19 +105,19 @@ def plot_ideal_notch_response(notch_freq, sampling_freq, bandwidth=10):
     save_and_show()
 
 
-plot_ideal_notch_response(notch_freq=peak_freq, sampling_freq=44100, bandwidth=20)
+plot_ideal_notch_response(notch_freq=peak_freq, sampling_freq=44100, bandwidth=BANDWIDTH)
 
-notch_signal = ideal_notch_filter(signal_mp3, notch_freq=peak_freq, sampling_freq=Fs, bandwidth=20, num_harmonics=8)
+notch_signal = ideal_notch_filter(signal_mp3, notch_freq=peak_freq, sampling_freq=Fs, bandwidth=BANDWIDTH, num_harmonics=7)
 
 plt.plot(notch_signal, 'b')
-plt.title('Ideal Notch Filtered Signal Time Domain')
+plt.title(f'Ideal Notch Filtered Signal Time Domain Bandwidth={BANDWIDTH}')
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
 save_and_show()
 
 notch_x,notch_y,_=real_fourier(notch_signal,Fs)
 plt.plot(notch_x,notch_y)
-plt.title('Ideal Notch Filtered Signal Frequency Domain')
+plt.title(f'Ideal Notch Filtered Signal Frequency Domain Bandwidth={BANDWIDTH}')
 plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
 save_and_show()
@@ -136,6 +139,6 @@ audio_signal = (audio_signal * (2**31 - 1)).astype(np.int32)
 audio = sign_to_audio(audio_signal, Fs)
 
 #exporting signal
-output_path=f"./mp3_files/filtered_names_notch.mp3"
+output_path=f"./mp3_files/filtered_names_notch_bandwidth_{BANDWIDTH}.mp3"
 audio.export(out_f=output_path,format="mp3")
 
