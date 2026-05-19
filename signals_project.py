@@ -14,7 +14,7 @@ import librosa
 from pydub import AudioSegment
 
 
-BANDWIDTH = 50
+BANDWIDTH = 5
 
 # helper function to save plots 
 def save_and_show():
