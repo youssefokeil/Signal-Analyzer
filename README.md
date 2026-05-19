@@ -34,14 +34,14 @@ A zoomed-in view of the FFT between 350–450 Hz to precisely identify the noise
 ### 4. Notch Filter Frequency Response
 ![Notch Filter Frequency Response](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filter_frequency_response.png?raw=true)
 
-The frequency response of the designed IIR notch filter. The sharp dip at 410 Hz shows where the filter attenuates the signal, while the rest of the spectrum remains flat and unaffected.
+We made an ideal notch filter that zeroes out at the desired frequency with a passed bandwidth.
 
 ---
 
 ### 5. Notch Filtered Signal — Time Domain
 ![Notch Filtered Signal Time Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filtered_signal_time_domain.png?raw=true)
 
-The filtered signal in the time domain after applying the notch filter. The overall shape of the signal is preserved while the 410 Hz noise component is removed.
+The filtered signal in the time domain after applying the ideal notch filter. The overall shape of the signal is preserved while the 410 Hz noise component is removed.
 
 ---
 
