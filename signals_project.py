@@ -13,17 +13,9 @@ from Signal_Generator_class import Signal
 import librosa
 from pydub import AudioSegment
 
-# constants
-F_s=200
-DURATION=2
-CUTOFF_LOW=10  #frequency to cutoff on
-ORDER= 2       #order of filter, by increasing order we get steeper attentuation
-
 #import MP3 file
 mp3_path=f"./mp3_files/names_400hz_noise.mp3"
 signal_mp3, Fs=librosa.load(mp3_path,sr=None, mono=True)
-signal_shifted = signal_mp3 * (2 ** 31 - 1)  
-signal_mp3=signal_shifted.astype(np.int32)
 plt.plot(signal_mp3)
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
@@ -40,14 +32,24 @@ def real_fourier(signal,sampling_freq):
     rfourier=rfft(signal)
     rfourier_xf = rfftfreq(N, 1.0/sampling_freq)
     rfourier_yf = np.abs(rfourier)/normalize
-    return rfourier_xf, rfourier_yf
+
+    mask = (rfourier_xf >= 100) & (rfourier_xf <= 2000)
+    peak_freq = rfourier_xf[mask][np.argmax(rfourier_yf[mask])]
+    
+    return rfourier_xf, rfourier_yf, peak_freq
 
 # plotting fourier transformed signal
-xf,yf=real_fourier(signal_mp3,Fs)
+xf,yf, peak_freq=real_fourier(signal_mp3,Fs)
 plt.plot(xf,yf)
 plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
 plt.title('Audio Signal Frequency Domain')
+plt.show()
+
+mask = (xf >= 350) & (xf <= 450)
+plt.plot(xf[mask], yf[mask], label=peak_freq)
+plt.title('Zoomed around 400 Hz')
+plt.legend()
 plt.show()
 
 # notch filter
@@ -77,18 +79,17 @@ def plot_notch_response(notch_freq, sampling_freq, quality_factor=30):
     plt.show()
 
 
-plot_notch_response(notch_freq=400, sampling_freq=44100, quality_factor=10)
+plot_notch_response(notch_freq=410, sampling_freq=44100, quality_factor=3)
 
 
-notch_signal=notch_filter(signal_mp3,notch_freq=400,sampling_freq=Fs, quality_factor=50)
-notch_signal=notch_signal.astype(np.int32)
+notch_signal=notch_filter(signal_mp3,notch_freq=410,sampling_freq=Fs, quality_factor=3)
 plt.plot(notch_signal, 'b')
 plt.title('Notch Filtered Signal Time Domain')
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
 plt.show()
 
-notch_x,notch_y=real_fourier(notch_signal,Fs)
+notch_x,notch_y,_=real_fourier(notch_signal,Fs)
 plt.plot(notch_x,notch_y)
 plt.title('Notch Filtered Signal Frequency Domain')
 plt.xlabel('Frequency[Hz]')
@@ -106,7 +107,10 @@ def sign_to_audio(signal,sampling_rate):
         channels=channels
     )
     return audio
-audio=sign_to_audio(notch_signal,Fs)
+
+audio_signal = np.clip(notch_signal, -1.0, 1.0)
+audio_signal = (audio_signal * (2**31 - 1)).astype(np.int32)
+audio = sign_to_audio(audio_signal, Fs)
 
 #exporting signal
 output_path=f"./mp3_files/filtered_names_notch.mp3"
