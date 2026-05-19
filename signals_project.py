@@ -62,14 +62,17 @@ plt.legend()
 save_and_show()
 
 # ideal notch filter
-def ideal_notch_filter(signal, notch_freq, sampling_freq, bandwidth=10):
+def ideal_notch_filter(signal, notch_freq, sampling_freq, bandwidth=10, num_harmonics=1): # add harmonics as optional
     N = len(signal)
     fft_signal = rfft(signal)
     freqs = rfftfreq(N, 1.0/sampling_freq)
     
     # zero out bins within bandwidth around notch frequency
-    mask = (freqs >= notch_freq - bandwidth/2) & (freqs <= notch_freq + bandwidth/2)
-    fft_signal[mask] = 0
+    for i in range(1, num_harmonics + 1):
+        harmonic = notch_freq * i
+        mask = (freqs >= harmonic - bandwidth/2) & (freqs <= harmonic + bandwidth/2)
+        fft_signal[mask] = 0
+        print(f"Zeroed harmonic {i}: {harmonic:.2f} Hz")
     
     # inverse FFT to get back time domain signal
     filtered_signal = np.real(irfft(fft_signal, n=N))
@@ -99,11 +102,9 @@ def plot_ideal_notch_response(notch_freq, sampling_freq, bandwidth=10):
     save_and_show()
 
 
-plot_ideal_notch_response(notch_freq=peak_freq, sampling_freq=44100, bandwidth=60)
+plot_ideal_notch_response(notch_freq=peak_freq, sampling_freq=44100, bandwidth=20)
 
-
-notch_signal=ideal_notch_filter(signal_mp3,notch_freq=peak_freq,sampling_freq=Fs, bandwidth=60)
-
+notch_signal = ideal_notch_filter(signal_mp3, notch_freq=peak_freq, sampling_freq=Fs, bandwidth=20, num_harmonics=8)
 
 plt.plot(notch_signal, 'b')
 plt.title('Ideal Notch Filtered Signal Time Domain')
