@@ -4,8 +4,10 @@ from scipy.fft import  rfft
 from scipy.fft import  rfftfreq
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from scipy.signal import butter,filtfilt
+from scipy.signal import butter,filtfilt, iirnotch, freqz
 # importing signal used to make sine wave
 from Signal_Generator_class import Signal 
 import librosa
@@ -30,7 +32,7 @@ sine_10hz=signal_10Hz.sine()
 signal_final= sine_20hz+sine_10hz+sine_1hz
 
 #import MP3 file
-mp3_path=f"record/audio.mp3"
+mp3_path=f"./mp3_files/names_400hz_noise.mp3"
 signal_mp3, Fs=librosa.load(mp3_path,sr=None, mono=True)
 signal_shifted = signal_mp3 * (2 ** 31 - 1)  
 signal_mp3=signal_shifted.astype(np.int32)
@@ -76,18 +78,47 @@ def high_pass(signal,cutoff_freq,sampling_freq,order_filter):
     filtered_sign=filtfilt(b,a,signal)
     return filtered_sign
 
+# notch filter
+def notch_filter(signal, notch_freq, sampling_freq, quality_factor=30):
+    nyq_freq = 0.5 * sampling_freq
+    normalized_freq = notch_freq / nyq_freq
+    b, a = iirnotch(normalized_freq, quality_factor)
+    filtered_sign = filtfilt(b, a, signal)
+    return filtered_sign
 
-hpf_signal=high_pass(signal_mp3,30,Fs,10)
-hpf_signal=hpf_signal.astype(np.int32)
-plt.plot(hpf_signal, 'b')
-plt.title('HPFiltered Signal Time Domain')
+
+def plot_notch_response(notch_freq, sampling_freq, quality_factor=30):
+    nyq_freq = 0.5 * sampling_freq
+    normalized_freq = notch_freq / nyq_freq
+    b, a = iirnotch(normalized_freq, quality_factor)
+    
+    freq, h = freqz(b, a, fs=sampling_freq)
+    
+    plt.figure(figsize=(10, 4))
+    plt.plot(freq, 20 * np.log10(abs(h)))
+    plt.axvline(x=notch_freq, color='r', linestyle='--', label=f'Notch at {notch_freq} Hz')
+    plt.title('Notch Filter Frequency Response')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Amplitude (dB)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+plot_notch_response(notch_freq=400, sampling_freq=44100, quality_factor=10)
+
+
+notch_signal=notch_filter(signal_mp3,notch_freq=400,sampling_freq=Fs, quality_factor=50)
+notch_signal=notch_signal.astype(np.int32)
+plt.plot(notch_signal, 'b')
+plt.title('Notch Filtered Signal Time Domain')
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
 plt.show()
 
-hpf_x,hpf_y=real_fourier(hpf_signal,Fs)
-plt.plot(hpf_x,hpf_y)
-plt.title('HPFiltered Signal Frequency Domain')
+notch_x,notch_y=real_fourier(notch_signal,Fs)
+plt.plot(notch_x,notch_y)
+plt.title('Notch Filtered Signal Frequency Domain')
 plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
 plt.show()
@@ -103,9 +134,9 @@ def sign_to_audio(signal,sampling_rate):
         channels=channels
     )
     return audio
-audio=sign_to_audio(hpf_signal,Fs)
+audio=sign_to_audio(notch_signal,Fs)
 
 #exporting signal
-output_path=f"./MP3 files/filtered_names_hpf.mp3"
+output_path=f"./mp3_files/filtered_names_notch.mp3"
 audio.export(out_f=output_path,format="mp3")
 
