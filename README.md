@@ -34,21 +34,30 @@ A zoomed-in view of the FFT between 350–450 Hz to precisely identify the noise
 ### 4. Notch Filter Frequency Response
 ![Notch Filter Frequency Response](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filter_frequency_response.png?raw=true)
 
-We made an ideal notch filter that zeroes out at the desired frequency with a passed bandwidth.
-
+We made an ideal notch filter that zeroes out at the desired frequency with a passed bandwidth. This will be passed for 8 harmonics like this:
+```
+Zeroed harmonic 1: 409.98 Hz
+Zeroed harmonic 2: 819.95 Hz
+Zeroed harmonic 3: 1229.93 Hz
+Zeroed harmonic 4: 1639.90 Hz
+Zeroed harmonic 5: 2049.88 Hz
+Zeroed harmonic 6: 2459.86 Hz
+Zeroed harmonic 7: 2869.83 Hz
+Zeroed harmonic 8: 3279.81 Hz
+```
 ---
 
 ### 5. Notch Filtered Signal — Time Domain
 ![Notch Filtered Signal Time Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filtered_signal_time_domain.png?raw=true)
 
-The filtered signal in the time domain after applying the ideal notch filter. The overall shape of the signal is preserved while the 410 Hz noise component is removed.
+The filtered signal in the time domain after applying the ideal notch filter. The overall shape of the signal is preserved while the 410 Hz noise component is removed. After removing it for multiple harmonics.
 
 ---
 
 ### 6. Notch Filtered Signal — Frequency Domain
 ![Notch Filtered Signal Frequency Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filtered_signal_frequency_domain.png?raw=true)
 
-The FFT of the filtered signal confirming the 410 Hz peak has been successfully removed a big part of it. The rest of the frequency content remains intact.
+The FFT of the filtered signal confirming the 410 Hz peak has been successfully removed a big part of it. The rest of the frequency content remains intact. After removing it for multiple harmonics.
 
 ---
 
