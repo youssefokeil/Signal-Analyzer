@@ -19,18 +19,6 @@ DURATION=2
 CUTOFF_LOW=10  #frequency to cutoff on
 ORDER= 2       #order of filter, by increasing order we get steeper attentuation
 
-#making signal using signal class
-signal_20Hz= Signal(amplitude=1,frequency=20, sampling_rate=F_s, duration=DURATION)
-sine_20hz=signal_20Hz.sine()
-signal_1Hz= Signal(amplitude=3,frequency=1, sampling_rate=F_s, duration=DURATION)
-sine_1hz=signal_1Hz.sine()
-signal_10Hz= Signal(amplitude=5,frequency=10, sampling_rate=F_s, duration=DURATION)
-sine_10hz=signal_10Hz.sine()
-
-
-# summing signals together
-signal_final= sine_20hz+sine_10hz+sine_1hz
-
 #import MP3 file
 mp3_path=f"./mp3_files/names_400hz_noise.mp3"
 signal_mp3, Fs=librosa.load(mp3_path,sr=None, mono=True)
@@ -61,22 +49,6 @@ plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
 plt.title('Audio Signal Frequency Domain')
 plt.show()
-
-# low pass filter function
-def low_pass(signal,cutoff_freq,sampling_freq,order_filter):
-    nyq_freq=0.5*sampling_freq
-    normalized_cutoff=cutoff_freq/nyq_freq
-    b, a= butter(order_filter, normalized_cutoff, btype='low', analog=False, output='ba')
-    filtered_sign=filtfilt(b,a,signal)
-    return filtered_sign
-
-# high pass filter function
-def high_pass(signal,cutoff_freq,sampling_freq,order_filter):
-    nyq_freq=0.5*sampling_freq
-    normalized_cutoff=cutoff_freq/nyq_freq
-    b, a= butter(order_filter, normalized_cutoff, btype='high', analog=False, output='ba')
-    filtered_sign=filtfilt(b,a,signal)
-    return filtered_sign
 
 # notch filter
 def notch_filter(signal, notch_freq, sampling_freq, quality_factor=30):
