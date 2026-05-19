@@ -1,6 +1,6 @@
 # importing packages
 import numpy as np
-from scipy.fft import  rfft
+from scipy.fft import  rfft,irfft
 from scipy.fft import  rfftfreq
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
@@ -61,46 +61,59 @@ plt.title('Zoomed around 400 Hz')
 plt.legend()
 save_and_show()
 
-# notch filter
-def notch_filter(signal, notch_freq, sampling_freq, quality_factor=30):
-    nyq_freq = 0.5 * sampling_freq
-    normalized_freq = notch_freq / nyq_freq
-    b, a = iirnotch(normalized_freq, quality_factor)
-    filtered_sign = filtfilt(b, a, signal)
-    return filtered_sign
-
-
-def plot_notch_response(notch_freq, sampling_freq, quality_factor=30):
-    nyq_freq = 0.5 * sampling_freq
-    normalized_freq = notch_freq / nyq_freq
-    b, a = iirnotch(normalized_freq, quality_factor)
+# ideal notch filter
+def ideal_notch_filter(signal, notch_freq, sampling_freq, bandwidth=10):
+    N = len(signal)
+    fft_signal = rfft(signal)
+    freqs = rfftfreq(N, 1.0/sampling_freq)
     
-    freq, h = freqz(b, a, fs=sampling_freq)
+    # zero out bins within bandwidth around notch frequency
+    mask = (freqs >= notch_freq - bandwidth/2) & (freqs <= notch_freq + bandwidth/2)
+    fft_signal[mask] = 0
+    
+    # inverse FFT to get back time domain signal
+    filtered_signal = np.real(irfft(fft_signal, n=N))
+    return filtered_signal
+
+
+# to plot the ideal notch
+def plot_ideal_notch_response(notch_freq, sampling_freq, bandwidth=10):
+    N = 44100  # 1 second of samples for visualization
+    freqs = rfftfreq(N, 1.0/sampling_freq)
+    
+    response = np.ones(len(freqs))
+    mask = (freqs >= notch_freq - bandwidth/2) & (freqs <= notch_freq + bandwidth/2)
+    response[mask] = 0
     
     plt.figure(figsize=(10, 4))
-    plt.plot(freq, 20 * np.log10(abs(h)))
+    plt.plot(freqs, 20 * np.log10(np.clip(response, 1e-10, None)))
     plt.axvline(x=notch_freq, color='r', linestyle='--', label=f'Notch at {notch_freq} Hz')
-    plt.title('Notch Filter Frequency Response')
+    plt.axvline(x=notch_freq - bandwidth/2, color='g', linestyle='--', label=f'Lower edge: {notch_freq - bandwidth/2} Hz')
+    plt.axvline(x=notch_freq + bandwidth/2, color='b', linestyle='--', label=f'Upper edge: {notch_freq + bandwidth/2} Hz')
+    plt.title('Ideal Notch Filter Frequency Response')
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Amplitude (dB)')
+    plt.xlim(notch_freq - 100, notch_freq + 100)  # zoom around notch
     plt.legend()
     plt.grid(True)
     save_and_show()
 
 
-plot_notch_response(notch_freq=410, sampling_freq=44100, quality_factor=1)
+plot_ideal_notch_response(notch_freq=peak_freq, sampling_freq=44100, bandwidth=60)
 
 
-notch_signal=notch_filter(signal_mp3,notch_freq=410,sampling_freq=Fs, quality_factor=1)
+notch_signal=ideal_notch_filter(signal_mp3,notch_freq=peak_freq,sampling_freq=Fs, bandwidth=60)
+
+
 plt.plot(notch_signal, 'b')
-plt.title('Notch Filtered Signal Time Domain')
+plt.title('Ideal Notch Filtered Signal Time Domain')
 plt.xlabel('Time[sec]')
 plt.ylabel('Amplitude')
 save_and_show()
 
 notch_x,notch_y,_=real_fourier(notch_signal,Fs)
 plt.plot(notch_x,notch_y)
-plt.title('Notch Filtered Signal Frequency Domain')
+plt.title('Ideal Notch Filtered Signal Frequency Domain')
 plt.xlabel('Frequency[Hz]')
 plt.ylabel('Amplitude')
 save_and_show()
