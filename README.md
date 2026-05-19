@@ -27,26 +27,26 @@ The FFT of the original signal showing the frequency content. A dominant noise s
 ### 3. Zoomed Around 400 Hz
 ![Zoomed Around 400 Hz](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/zoomed_around_400_hz.png?raw=true)
 
-A zoomed-in view of the FFT between 350–450 Hz to precisely identify the noise frequency. This confirmed the peak at **410 Hz** rather than 400 Hz.
+A zoomed-in view of the FFT between 350–450 Hz to precisely identify the noise frequency. This confirmed the peak at around **410 Hz** rather than 400 Hz.
 
 ---
 
 ### 4. Notch Filter Frequency Response
-![Notch Filter Frequency Response](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/notch_filter_frequency_response.png?raw=true)
+![Notch Filter Frequency Response](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filter_frequency_response.png?raw=true)
 
 The frequency response of the designed IIR notch filter. The sharp dip at 410 Hz shows where the filter attenuates the signal, while the rest of the spectrum remains flat and unaffected.
 
 ---
 
 ### 5. Notch Filtered Signal — Time Domain
-![Notch Filtered Signal Time Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/notch_filtered_signal_time_domain.png?raw=true)
+![Notch Filtered Signal Time Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filtered_signal_time_domain.png?raw=true)
 
 The filtered signal in the time domain after applying the notch filter. The overall shape of the signal is preserved while the 410 Hz noise component is removed.
 
 ---
 
 ### 6. Notch Filtered Signal — Frequency Domain
-![Notch Filtered Signal Frequency Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/notch_filtered_signal_frequency_domain.png?raw=true)
+![Notch Filtered Signal Frequency Domain](https://github.com/youssefokeil/Signal-Analyzer/blob/main/figures/ideal_notch_filtered_signal_frequency_domain.png?raw=true)
 
 The FFT of the filtered signal confirming the 410 Hz peak has been successfully removed a big part of it. The rest of the frequency content remains intact.
 
